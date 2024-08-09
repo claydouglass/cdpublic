@@ -1,66 +1,52 @@
 export const calculateRecipeBounds = (recipeData, currentPhase) => {
-  console.log("Calculating recipe bounds for phase:", currentPhase);
+    console.log("Calculating recipe bounds for phase:", currentPhase);
   
-  // Find the column index that corresponds to the current phase
-  const phaseIndex = recipeData[0] ? Object.values(recipeData[0]).indexOf(currentPhase) : -1;
+    // Helper function to get bounds for a given stage and phase
+    const getBounds = (stage, currentPhase) => {
+      const minValue = parseFloat(recipeData.find(row => row.stage === `${stage}_low`)?.[currentPhase]);
+      const maxValue = parseFloat(recipeData.find(row => row.stage === `${stage}_high`)?.[currentPhase]);
+      
+      return { 
+        min: !isNaN(minValue) ? minValue : 0, 
+        max: !isNaN(maxValue) ? maxValue : 100 
+      };
+    };
   
-  if (phaseIndex === -1) {
-    console.warn("No phase data found for the current phase. Using default values.");
-    return {
+    // If no valid phase data found, return default values
+    if (!recipeData || recipeData.length === 0 || !recipeData[0].hasOwnProperty(currentPhase)) {
+      console.warn("No phase data found for the current phase. Using default values.");
+      return {
+        day: {
+          temperature: { min: 20, max: 30 },
+          humidity: { min: 40, max: 60 },
+          co2: { min: 800, max: 1500 },
+          vpd: { min: 0.8, max: 1.2 },
+        },
+        night: {
+          temperature: { min: 20, max: 30 },
+          humidity: { min: 40, max: 60 },
+          co2: { min: 800, max: 1500 },
+          vpd: { min: 0.8, max: 1.2 },
+        }
+      };
+    }
+  
+    // Calculate bounds based on current phase
+    const bounds = {
       day: {
-        temperature: { min: 20, max: 30 },
-        humidity: { min: 40, max: 60 },
-        co2: { min: 800, max: 1500 },
-        vpd: { min: 0.8, max: 1.2 },
+        temperature: getBounds('temp(c)_day', currentPhase),
+        humidity: getBounds('humid(%rh)_day', currentPhase),
+        co2: getBounds('co2(ppm)_day', currentPhase),
+        vpd: getBounds('vpd', currentPhase),
       },
       night: {
-        temperature: { min: 20, max: 30 },
-        humidity: { min: 40, max: 60 },
-        co2: { min: 800, max: 1500 },
-        vpd: { min: 0.8, max: 1.2 },
+        temperature: getBounds('temp(c)_night', currentPhase),
+        humidity: getBounds('humid(%rh)_night', currentPhase),
+        co2: getBounds('co2(ppm)_night', currentPhase),
+        vpd: getBounds('vpd', currentPhase),
       }
     };
-  }
-
-  const bounds = {
-    day: {
-      temperature: {
-        min: parseFloat(recipeData.find(row => row.stage === 'temp(c)_day_low')[currentPhase]) || 0,
-        max: parseFloat(recipeData.find(row => row.stage === 'temp(c)_day_high')[currentPhase]) || 50,
-      },
-      humidity: {
-        min: parseFloat(recipeData.find(row => row.stage === 'humid(%rh)_day_low')[currentPhase]) || 0,
-        max: parseFloat(recipeData.find(row => row.stage === 'humid(%rh)_day_high')[currentPhase]) || 100,
-      },
-      co2: {
-        min: parseFloat(recipeData.find(row => row.stage === 'co2(ppm)_day_low')[currentPhase]) || 300,
-        max: parseFloat(recipeData.find(row => row.stage === 'co2(ppm)_day_high')[currentPhase]) || 2000,
-      },
-      vpd: {
-        min: parseFloat(recipeData.find(row => row.stage === 'vpd_low')[currentPhase]) || 0,
-        max: parseFloat(recipeData.find(row => row.stage === 'vpd_high')[currentPhase]) || 3,
-      },
-    },
-    night: {
-      temperature: {
-        min: parseFloat(recipeData.find(row => row.stage === 'temp(c)_night_low')[currentPhase]) || 0,
-        max: parseFloat(recipeData.find(row => row.stage === 'temp(c)_night_high')[currentPhase]) || 50,
-      },
-      humidity: {
-        min: parseFloat(recipeData.find(row => row.stage === 'humid(%rh)_night_low')[currentPhase]) || 0,
-        max: parseFloat(recipeData.find(row => row.stage === 'humid(%rh)_night_high')[currentPhase]) || 100,
-      },
-      co2: {
-        min: parseFloat(recipeData.find(row => row.stage === 'co2(ppm)_night_low')[currentPhase]) || 300,
-        max: parseFloat(recipeData.find(row => row.stage === 'co2(ppm)_night_high')[currentPhase]) || 2000,
-      },
-      vpd: {
-        min: parseFloat(recipeData.find(row => row.stage === 'vpd_low')[currentPhase]) || 0,
-        max: parseFloat(recipeData.find(row => row.stage === 'vpd_high')[currentPhase]) || 3,
-      },
-    }
+  
+    console.log("Calculated bounds:", bounds);
+    return bounds;
   };
-
-  console.log("Calculated bounds:", bounds);
-  return bounds;
-};

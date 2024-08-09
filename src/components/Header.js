@@ -5,12 +5,15 @@ import TimeScaleSelector from './TimeScaleSelector';
 
 const Header = ({ selectedRoom, setSelectedRoom, selectedStrain, setSelectedStrain, timeScale, setTimeScale }) => {
   return (
-    <header className="flex items-center justify-between mb-6">
+    <header className="bg-white shadow p-4 flex justify-between items-center">
       <div className="flex items-center">
-        <img src="/cdpublic/vervana_logo.png" alt="Vervana logo" className="h-8 mr-2" />
-        <h1 className="text-3xl font-bold text-teal-600">Cultivate</h1>
+        <img 
+          src="/cdpublic/images/vervana_logo.png" 
+          alt="Vervana logo" 
+          className="w-48 h-auto"
+        />
       </div>
-      <div className="flex items-center space-x-4">
+      <div className="selectors flex items-center space-x-4">
         <RoomSelector selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} />
         <StrainSelector selectedStrain={selectedStrain} setSelectedStrain={setSelectedStrain} />
         <TimeScaleSelector timeScale={timeScale} setTimeScale={setTimeScale} />

@@ -1,9 +1,11 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceArea, Tooltip, Legend } from 'recharts';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  ResponsiveContainer, ReferenceArea, Tooltip, Legend
+} from 'recharts';
 import { formatXAxis } from '../utils/dateUtils';
 
 const EnvironmentalChart = ({ chartData, recipeBounds }) => {
-  // Provide default bounds in case they are undefined
   const defaultBounds = {
     temperature: { min: 20, max: 30 },
     humidity: { min: 40, max: 60 },
@@ -14,31 +16,27 @@ const EnvironmentalChart = ({ chartData, recipeBounds }) => {
   const dayBounds = recipeBounds?.day || defaultBounds;
   const nightBounds = recipeBounds?.night || defaultBounds;
 
-  console.log("Rendering EnvironmentalChart with dayBounds:", dayBounds);
-  console.log("Rendering EnvironmentalChart with nightBounds:", nightBounds);
-
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" />
 
-        <XAxis 
-          dataKey="timestamp" 
+        <XAxis
+          dataKey="timestamp"
           type="number"
           domain={['dataMin', 'dataMax']}
           tickFormatter={formatXAxis}
-          tick={{ fontSize: 12 }} 
+          tick={{ fontSize: 12 }}
           label={{ value: "Time (24-hour period)", position: 'insideBottomRight', offset: -5 }}
-          interval={0} // Ensure every hour is marked
-          tickCount={24} // Display 24 ticks, one for each hour
+          interval={0} 
+          tickCount={24}
         />
 
         <YAxis yAxisId="left" domain={[0, 50]} />
         <YAxis yAxisId="right" orientation="right" domain={[300, 2000]} />
 
-        {/* Highlight bounds for day and night periods */}
         {chartData.map((entry, index) => {
-          const bounds = entry.d_n === 1 ? dayBounds : nightBounds;
+          const bounds = entry.lightOn ? dayBounds : nightBounds;
           const nextEntryTimestamp = index < chartData.length - 1 ? chartData[index + 1].timestamp : entry.timestamp;
 
           return (

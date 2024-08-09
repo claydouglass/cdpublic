@@ -1,13 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Roboto:wght@400;500&display=swap');
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f0f6f9;
+  color: #333;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  background-color: #ffffff;
+  border-bottom: 2px solid #007a8a;
+}
+
+.header-logo {
+  width: 100px; /* Reduce logo size */
+  margin-right: 15px;
+}
+
+h1 {
+  font-family: 'Merriweather', serif;
+  font-size: 24px;
+  color: #007a8a; /* Cultivate color */
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.tabs button {
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.tabs button.active {
+  background-color: #007a8a;
+  color: #ffffff;
+}
+
+.tabs button:not(.active) {
+  background-color: #e1e8eb;
+  color: #333333;
+}
+
+.selectors {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.selectors select {
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid #cccccc;
+}
+
+.chart-title {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #444444;
+}
+
+.analysis-section {
+  margin-top: 30px;
+  font-size: 16px;
+  color: #444444;
+}
+
+.analysis-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #007a8a;
+}
+
+.analysis-section p {
+  margin-top: 5px;
+  font-size: 14px;
+  color: #666666;
 }

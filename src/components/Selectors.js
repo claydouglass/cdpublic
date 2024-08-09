@@ -11,9 +11,8 @@ const Selectors = ({ selectedRoom, setSelectedRoom }) => {
         className="p-2 border rounded text-teal-600 font-roboto"
         style={{ fontSize: '16px', fontWeight: '500' }}
       >
-        <option value="Room 1">Room 1</option>
-        <option value="Room 2">Room 2</option>
-        <option value="Room 3">Room 3</option>
+        <option value="Room 101">Room 101</option>
+        <option value="Room 102">Room 102</option>
       </select>
 
       <select
@@ -21,7 +20,7 @@ const Selectors = ({ selectedRoom, setSelectedRoom }) => {
         style={{ fontSize: '16px', fontWeight: '500' }}
       >
         <option value="Papaya Terpz">Papaya Terpz</option>
-        {/* Add more strain options here */}
+        <option value="Kandy Terpz">Kandy Terpz</option>
       </select>
     </div>
   );
