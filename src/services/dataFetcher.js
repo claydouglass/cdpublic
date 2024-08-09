@@ -1,6 +1,6 @@
 import Papa from 'papaparse';
 
-const ENVIRONMENTAL_DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfPCQ5tGSgax2SuI-_WUpbmeW3hgdlQa0nFHBNDuw75LFX9Rrm3d_EYtMQ1YMO8pWHX1pL3-jOPrTi/pub?output=csv';
+const ENVIRONMENTAL_DATA_URL = 'https://docs.google.com/spreadsheets/d/1Ki2hmGSihyuaxp_t7hFca3BUY9gZRCAkEGfPAcr-Foc/pub?output=csv';
 const RECIPE_DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS-OvMFLTAzu2aSDIEF1ma2YADXDYN-ZjjPfMBB-PMvpbisTVVADFDnyJrLGYn-YJtYei8vQLu0-U9Z/pub?output=csv';
 
 export const fetchEnvironmentalData = async () => {

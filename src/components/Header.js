@@ -1,15 +1,19 @@
-// src/components/Header.js
 import React from 'react';
+import RoomSelector from './RoomSelector';
+import StrainSelector from './StrainSelector';
+import TimeScaleSelector from './TimeScaleSelector';
 
-const Header = ({ dayOfFlowering }) => {
+const Header = ({ selectedRoom, setSelectedRoom, selectedStrain, setSelectedStrain, timeScale, setTimeScale }) => {
   return (
     <header className="flex items-center justify-between mb-6">
-      <div>
-        <h1 className="text-4xl font-bold text-teal-600 font-poppins">Vervana Multi-room Cultivation Dashboard</h1>
-        <p className="text-lg font-medium text-teal-400">Day {dayOfFlowering} of Flowering</p>
-      </div>
       <div className="flex items-center">
-        <img src="/vervana-logo.png" alt="Vervana logo" className="h-12 mr-4" />
+        <img src="/logo-vervana.png" alt="Vervana logo" className="h-10 mr-3" />
+        <h1 className="text-3xl font-bold text-teal-600">Cultivate</h1>
+      </div>
+      <div className="flex items-center space-x-4">
+        <RoomSelector selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} />
+        <StrainSelector selectedStrain={selectedStrain} setSelectedStrain={setSelectedStrain} />
+        <TimeScaleSelector timeScale={timeScale} setTimeScale={setTimeScale} />
       </div>
     </header>
   );
