@@ -22,6 +22,9 @@ const Dashboard = () => {
     vpd: { min: 0.8, max: 1.2 },
   };
 
+  // Add console.log to inspect chartData
+  console.log("Chart Data:", chartData);
+
   const renderCurrentTab = () => {
     switch (currentTab) {
       case 'Overview':
