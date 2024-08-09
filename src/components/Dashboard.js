@@ -1,9 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from './Header';
 import Tabs from './Tabs';
-import RoomSelector from './RoomSelector';
-import StrainSelector from './StrainSelector';
-import TimeScaleSelector from './TimeScaleSelector';
 import EnvironmentalChart from './EnvironmentalChart';
 import AIAnalysis from './AIAnalysis';
 
@@ -13,17 +10,13 @@ const Dashboard = () => {
   const [selectedRoom, setSelectedRoom] = useState('Room 1');
   const [selectedStrain, setSelectedStrain] = useState('Papaya Terpz');
 
-  // Example: replace these with actual fetching logic
-  const chartData = []; 
+  const chartData = [];
   const recipeBounds = {
     temperature: { min: 20, max: 30 },
     humidity: { min: 40, max: 60 },
     co2: { min: 800, max: 1500 },
     vpd: { min: 0.8, max: 1.2 },
   };
-
-  // Add console.log to inspect chartData
-  console.log("Chart Data:", chartData);
 
   const renderCurrentTab = () => {
     switch (currentTab) {
@@ -64,8 +57,8 @@ const Dashboard = () => {
 
   return (
     <div className="p-4 max-w-6xl mx-auto font-sans">
-      <Header 
-        selectedRoom={selectedRoom} 
+      <Header
+        selectedRoom={selectedRoom}
         setSelectedRoom={setSelectedRoom}
         selectedStrain={selectedStrain}
         setSelectedStrain={setSelectedStrain}
