@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Dashboard from './components/Dashboard';
+import Settings from './components/Settings';
 
 function App() {
-  console.log("App component rendering");
+  const [currentView, setCurrentView] = useState('dashboard');
+
   return (
     <div className="App">
-      <Dashboard />
+      <nav>
+        <button onClick={() => setCurrentView('dashboard')}>Dashboard</button>
+        <button onClick={() => setCurrentView('settings')}>Settings</button>
+      </nav>
+      {currentView === 'dashboard' ? <Dashboard /> : <Settings />}
     </div>
   );
 }

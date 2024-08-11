@@ -4,14 +4,17 @@ import Tabs from './Tabs';
 import EnvironmentalChart from './EnvironmentalChart';
 import AIAnalysis from './AIAnalysis';
 import { fetchEnvironmentalData, fetchRecipeData } from '../services/dataFetcher';
-import { processEnvironmentalData } from '../services/dataProcessor';
-import { calculateRecipeBounds } from '../services/dataProcessor';
+import { processEnvironmentalData, calculateRecipeBounds } from '../services/dataProcessor';
+import { batches } from '../data/batchData';
+import { calculateCurrentPhase } from '../utils/phaseCalculator';
+import { updateBatchPhase } from '../utils/floweringDetector';
+
+// Usage in your component...
 
 const Dashboard = () => {
   const [currentTab, setCurrentTab] = useState('Overview');
   const [timeScale, setTimeScale] = useState('24h');
-  const [selectedRoom, setSelectedRoom] = useState('Room 1');
-  const [selectedStrain, setSelectedStrain] = useState('Papaya Terpz');
+  const [selectedBatchId, setSelectedBatchId] = useState(1);
   const [chartData, setChartData] = useState([]);
   const [recipeBounds, setRecipeBounds] = useState({
     day: {
@@ -27,6 +30,11 @@ const Dashboard = () => {
       vpd: { min: 0.8, max: 1.2 },
     },
   });
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [lightHours, setLightHours] = useState(18); // Default to veg cycle
+
+  const selectedBatch = batches.find(batch => batch.id === selectedBatchId);
+  const currentPhase = calculateCurrentPhase(selectedBatch, currentDate);
 
   useEffect(() => {
     const loadData = async () => {
@@ -36,14 +44,18 @@ const Dashboard = () => {
         setChartData(processedData);
 
         const recipeData = await fetchRecipeData();
-        const bounds = calculateRecipeBounds(recipeData, 'flowering'); // replace 'flowering' with the actual phase
+        const bounds = calculateRecipeBounds(recipeData, currentPhase);
         setRecipeBounds(bounds);
+
+        if (selectedBatch) {
+          updateBatchPhase(selectedBatch, currentDate, lightHours);
+        }
       } catch (error) {
         console.error("Error loading data:", error);
       }
     };
     loadData();
-  }, [timeScale, selectedRoom]);
+  }, [timeScale, selectedBatchId, currentDate, lightHours]);
 
   const renderCurrentTab = () => {
     switch (currentTab) {
@@ -85,14 +97,33 @@ const Dashboard = () => {
   return (
     <div className="p-4 max-w-6xl mx-auto font-sans">
       <Header
-        selectedRoom={selectedRoom}
-        setSelectedRoom={setSelectedRoom}
-        selectedStrain={selectedStrain}
-        setSelectedStrain={setSelectedStrain}
+        selectedBatch={selectedBatch}
+        setSelectedBatchId={setSelectedBatchId}
         timeScale={timeScale}
         setTimeScale={setTimeScale}
+        currentPhase={currentPhase}
       />
       <Tabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
+      <div className="mb-4">
+        <label htmlFor="lightHours" className="mr-2">Light Hours:</label>
+        <input
+          type="number"
+          id="lightHours"
+          value={lightHours}
+          onChange={(e) => setLightHours(Number(e.target.value))}
+          min="0"
+          max="24"
+          className="border rounded px-2 py-1"
+        />
+        <label htmlFor="currentDate" className="ml-4 mr-2">Current Date:</label>
+        <input
+          type="date"
+          id="currentDate"
+          value={currentDate.toISOString().split('T')[0]}
+          onChange={(e) => setCurrentDate(new Date(e.target.value))}
+          className="border rounded px-2 py-1"
+        />
+      </div>
       {renderCurrentTab()}
     </div>
   );
