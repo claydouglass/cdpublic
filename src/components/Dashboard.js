@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import Tabs from './Tabs';
-import EnvironmentalChart from './EnvironmentalChart';
+import MetricChart from './MetricChart';
 import AIAnalysis from './AIAnalysis';
 import { fetchEnvironmentalData, fetchRecipeData } from '../services/dataFetcher';
-import { processEnvironmentalData, calculateRecipeBounds } from '../services/dataProcessor';
-import { batches } from '../data/batchData';
-import { calculateCurrentPhase } from '../utils/phaseCalculator';
-import { updateBatchPhase } from '../utils/floweringDetector';
-
-// Usage in your component...
+import { processEnvironmentalData, detectStages, calculateRecipeBounds } from '../services/dataProcessor';
 
 const Dashboard = () => {
   const [currentTab, setCurrentTab] = useState('Overview');
   const [timeScale, setTimeScale] = useState('24h');
-  const [selectedBatchId, setSelectedBatchId] = useState(1);
+  const [selectedRoom, setSelectedRoom] = useState('Room 102');
+  const [selectedStrain, setSelectedStrain] = useState('Kandy Terpz');
   const [chartData, setChartData] = useState([]);
   const [recipeBounds, setRecipeBounds] = useState({
     day: {
@@ -30,32 +26,38 @@ const Dashboard = () => {
       vpd: { min: 0.8, max: 1.2 },
     },
   });
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [lightHours, setLightHours] = useState(18); // Default to veg cycle
-
-  const selectedBatch = batches.find(batch => batch.id === selectedBatchId);
-  const currentPhase = calculateCurrentPhase(selectedBatch, currentDate);
+  const [currentStage, setCurrentStage] = useState(null);
+  const [stageInfo, setStageInfo] = useState('');
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const envData = await fetchEnvironmentalData();
         const processedData = processEnvironmentalData(envData);
+
         setChartData(processedData);
 
-        const recipeData = await fetchRecipeData();
-        const bounds = calculateRecipeBounds(recipeData, currentPhase);
-        setRecipeBounds(bounds);
+        const stageData = detectStages(processedData, true);
+        console.log('Detected stage data:', stageData);
 
-        if (selectedBatch) {
-          updateBatchPhase(selectedBatch, currentDate, lightHours);
+        if (stageData.currentStage) {
+          setCurrentStage(stageData.currentStage);
+          setStageInfo(stageData.stageDescription);
+
+          const recipeData = await fetchRecipeData();
+          const bounds = calculateRecipeBounds(recipeData, stageData.currentStage);
+
+          console.log('Calculated bounds:', bounds);
+
+          setRecipeBounds(bounds);
         }
       } catch (error) {
         console.error("Error loading data:", error);
       }
     };
+
     loadData();
-  }, [timeScale, selectedBatchId, currentDate, lightHours]);
+  }, [timeScale, selectedRoom]);
 
   const renderCurrentTab = () => {
     switch (currentTab) {
@@ -63,32 +65,29 @@ const Dashboard = () => {
         return (
           <>
             <h2 className="text-2xl font-bold mb-4">Environmental Controls - Last {timeScale}</h2>
-            <EnvironmentalChart chartData={chartData} recipeBounds={recipeBounds} />
-            <AIAnalysis chartData={chartData} recipeBounds={recipeBounds} />
+            <p className="text-lg mb-2">It's {chartData.some(data => data.lightOn) ? 'daytime' : 'nighttime'}, {stageInfo}</p>
+  
+            <h2 className="text-xl font-bold mb-4 mt-8">VPD</h2>
+            <MetricChart chartData={chartData} recipeBounds={recipeBounds} metric="vpd" />
+  
+            <h2 className="text-xl font-bold mb-4 mt-8">Temperature</h2>
+            <MetricChart chartData={chartData} recipeBounds={recipeBounds} metric="temperature" />
+  
+            <h2 className="text-xl font-bold mb-4 mt-8">Humidity</h2>
+            <MetricChart chartData={chartData} recipeBounds={recipeBounds} metric="humidity" />
+  
+            <h2 className="text-xl font-bold mb-4 mt-8">CO2</h2>
+            <MetricChart chartData={chartData} recipeBounds={recipeBounds} metric="co2" />
+  
+            <AIAnalysis 
+              chartData={chartData} 
+              recipeBounds={recipeBounds} 
+              currentStage={currentStage} 
+              stageInfo={stageInfo}
+            />
           </>
         );
-      case 'Environmental':
-        return (
-          <>
-            <h2 className="text-2xl font-bold mb-4">Environmental Controls</h2>
-            <EnvironmentalChart chartData={chartData} recipeBounds={recipeBounds} />
-            <AIAnalysis chartData={chartData} recipeBounds={recipeBounds} />
-          </>
-        );
-      case 'Nutrients':
-        return (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Nutrients</h2>
-            {/* Nutrient chart logic */}
-          </div>
-        );
-      case 'Analysis':
-        return (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Analysis</h2>
-            {/* Analysis chart logic */}
-          </div>
-        );
+      // Other cases here...
       default:
         return null;
     }
@@ -97,33 +96,14 @@ const Dashboard = () => {
   return (
     <div className="p-4 max-w-6xl mx-auto font-sans">
       <Header
-        selectedBatch={selectedBatch}
-        setSelectedBatchId={setSelectedBatchId}
+        selectedRoom={selectedRoom}
+        setSelectedRoom={setSelectedRoom}
+        selectedStrain={selectedStrain}
+        setSelectedStrain={setSelectedStrain}
         timeScale={timeScale}
         setTimeScale={setTimeScale}
-        currentPhase={currentPhase}
       />
       <Tabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
-      <div className="mb-4">
-        <label htmlFor="lightHours" className="mr-2">Light Hours:</label>
-        <input
-          type="number"
-          id="lightHours"
-          value={lightHours}
-          onChange={(e) => setLightHours(Number(e.target.value))}
-          min="0"
-          max="24"
-          className="border rounded px-2 py-1"
-        />
-        <label htmlFor="currentDate" className="ml-4 mr-2">Current Date:</label>
-        <input
-          type="date"
-          id="currentDate"
-          value={currentDate.toISOString().split('T')[0]}
-          onChange={(e) => setCurrentDate(new Date(e.target.value))}
-          className="border rounded px-2 py-1"
-        />
-      </div>
       {renderCurrentTab()}
     </div>
   );

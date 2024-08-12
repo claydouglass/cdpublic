@@ -38,7 +38,7 @@ const recipeData = [
       light_ppfd: 450,
     },
     {
-      stage: 'Fminer Week 1-3',
+      stage: 'Flower Week 1-3',
       'temp(c)_day_min': 24,
       'temp(c)_day_max': 26,
       'temp(c)_night_min': 24.5,
@@ -57,7 +57,7 @@ const recipeData = [
       light_ppfd: 750,
     },
     {
-      stage: 'Fminer Week 4-6.5',
+      stage: 'Flower Week 4-6.5',
       'temp(c)_day_min': 24,
       'temp(c)_day_max': 26,
       'temp(c)_night_min': 24.5,
@@ -76,7 +76,7 @@ const recipeData = [
       light_ppfd: 1200,
     },
     {
-      stage: 'Fminer Week 6.5-8.5',
+      stage: 'Flower Week 6.5-8.5',
       'temp(c)_day_min': 23.5,
       'temp(c)_day_max': 25.5,
       'temp(c)_night_min': 21,
@@ -95,7 +95,7 @@ const recipeData = [
       light_ppfd: 1200,
     },
     {
-      stage: 'Fminer Week 8.5+ Harvest',
+      stage: 'Flower Week 8.5+ Harvest',
       'temp(c)_day_min': 23.5,
       'temp(c)_day_max': 25.5,
       'temp(c)_night_min': 21,

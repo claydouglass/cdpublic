@@ -1,100 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import Header from './Header';
-import Tabs from './Tabs';
-import EnvironmentalChart from './EnvironmentalChart';
-import AIAnalysis from './AIAnalysis';
-import { fetchEnvironmentalData, fetchRecipeData } from '../services/dataFetcher';
-import { processEnvironmentalData, calculateRecipeBounds } from '../services/dataProcessor';
+// Function to calculate recipe bounds based on current phase and optionally, room/batch
+export const calculateRecipeBounds = (recipeData, currentPhase) => {
+  console.log("Calculating recipe bounds for phase:", currentPhase);
 
-const Dashboard = () => {
-  const [currentTab, setCurrentTab] = useState('Overview');
-  const [timeScale, setTimeScale] = useState('24h');
-  const [selectedRoom, setSelectedRoom] = useState('Room 1');
-  const [selectedStrain, setSelectedStrain] = useState('Papaya Terpz');
-  const [chartData, setChartData] = useState([]);
-  const [recipeBounds, setRecipeBounds] = useState({
-    day: {
-      temperature: { min: 20, max: 30 },
-      humidity: { min: 40, max: 60 },
-      co2: { min: 800, max: 1500 },
-      vpd: { min: 0.8, max: 1.2 },
-    },
-    night: {
-      temperature: { min: 20, max: 30 },
-      humidity: { min: 40, max: 60 },
-      co2: { min: 800, max: 1500 },
-      vpd: { min: 0.8, max: 1.2 },
-    },
-  });
+  if (!recipeData || recipeData.length === 0) {
+      console.warn("Recipe data is empty or undefined.");
+      return defaultBounds();
+  }
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const envData = await fetchEnvironmentalData();
-        const processedData = processEnvironmentalData(envData);
-        setChartData(processedData);
+  const currentRecipeRow = recipeData.find(row => row.stage === currentPhase);
+  if (!currentRecipeRow) {
+      console.warn(`No recipe data found for the phase: ${currentPhase}`);
+      console.log("Available stages in recipeData:", recipeData.map(row => row.stage));
+      return defaultBounds();
+  }
 
-        const recipeData = await fetchRecipeData();
-        const bounds = calculateRecipeBounds(recipeData, 'flowering'); // Replace 'flowering' with the actual phase as needed
-        setRecipeBounds(bounds);
-      } catch (error) {
-        console.error("Error loading data:", error);
-      }
-    };
-    loadData();
-  }, [timeScale, selectedRoom]);
+  console.log("Found recipe data for current phase:", currentRecipeRow);
 
-  const renderCurrentTab = () => {
-    switch (currentTab) {
-      case 'Overview':
-        return (
-          <>
-            <h2 className="text-2xl font-bold mb-4">Environmental Controls - Last {timeScale}</h2>
-            <EnvironmentalChart chartData={chartData} recipeBounds={recipeBounds} />
-            <AIAnalysis chartData={chartData} recipeBounds={recipeBounds} />
-          </>
-        );
-      case 'Environmental':
-        return (
-          <>
-            <h2 className="text-2xl font-bold mb-4">Environmental Controls</h2>
-            <EnvironmentalChart chartData={chartData} recipeBounds={recipeBounds} />
-            <AIAnalysis chartData={chartData} recipeBounds={recipeBounds} />
-          </>
-        );
-      case 'Nutrients':
-        return (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Nutrients</h2>
-            {/* Nutrient chart logic */}
-          </div>
-        );
-      case 'Analysis':
-        return (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Analysis</h2>
-            {/* Analysis chart logic */}
-          </div>
-        );
-      default:
-        return null;
-    }
+  const getBound = (key) => {
+      const minValue = parseFloat(currentRecipeRow[`${key}_min`]) || 0;
+      const maxValue = parseFloat(currentRecipeRow[`${key}_max`]) || 100;
+      console.log(`Bounds for ${key}: min = ${minValue}, max = ${maxValue}`);
+      return { min: minValue, max: maxValue };
   };
 
-  return (
-    <div className="p-4 max-w-6xl mx-auto font-sans">
-      <Header
-        selectedRoom={selectedRoom}
-        setSelectedRoom={setSelectedRoom}
-        selectedStrain={selectedStrain}
-        setSelectedStrain={setSelectedStrain}
-        timeScale={timeScale}
-        setTimeScale={setTimeScale}
-      />
-      <Tabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
-      {renderCurrentTab()}
-    </div>
-  );
+  const bounds = {
+      day: {
+          temperature: getBound('temp(c)_day'),
+          humidity: getBound('humid(%rh)_day'),
+          co2: getBound('co2(ppm)_day'),
+          vpd: getBound('vpd'),
+      },
+      night: {
+          temperature: getBound('temp(c)_night'),
+          humidity: getBound('humid(%rh)_night'),
+          co2: getBound('co2(ppm)_night'),
+          vpd: getBound('vpd'),
+      }
+  };
+
+  console.log("Calculated bounds:", bounds);
+  return bounds;
 };
 
-export default Dashboard;
+// Fallback default bounds if no data is available
+const defaultBounds = () => ({
+  day: {
+      temperature: { min: 20, max: 30 },
+      humidity: { min: 40, max: 60 },
+      co2: { min: 800, max: 1500 },
+      vpd: { min: 0.8, max: 1.2 },
+  },
+  night: {
+      temperature: { min: 20, max: 30 },
+      humidity: { min: 40, max: 60 },
+      co2: { min: 400, max: 600 },
+      vpd: { min: 0.8, max: 1.2 },
+  }
+});
+
+export { calculateRecipeBounds };

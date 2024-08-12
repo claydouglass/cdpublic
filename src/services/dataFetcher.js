@@ -11,9 +11,9 @@ export const fetchEnvironmentalData = async () => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const csvText = await response.text();
-    console.log("Environmental data fetched:", csvText.slice(0, 200));
+    console.log("Environmental data fetched:", csvText.slice(0, 200)); // Logs first 200 characters of the CSV data
     const result = Papa.parse(csvText, { header: true });
-    console.log("Parsed environmental data:", result.data.slice(0, 2));
+    console.log("Parsed environmental data:", result.data.slice(0, 2)); // Logs the first 2 entries of parsed data
     return result.data;
   } catch (error) {
     console.error("Error fetching environmental data:", error);
@@ -23,5 +23,6 @@ export const fetchEnvironmentalData = async () => {
 
 export const fetchRecipeData = async () => {
   console.log("Using local recipe data");
+  console.log("Recipe data content:", recipeData); // Logs the full recipe data to check its structure and content
   return recipeData;
 };
