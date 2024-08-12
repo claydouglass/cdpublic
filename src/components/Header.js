@@ -10,7 +10,7 @@ const Header = ({ selectedRoom, setSelectedRoom, selectedStrain, setSelectedStra
         <img 
           src="/cdpublic/images/vervana_logo.png" 
           alt="Vervana logo" 
-          className="w-48 h-auto"
+          className="header-logo" 
         />
       </div>
       <div className="selectors flex items-center space-x-4">
