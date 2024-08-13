@@ -28,15 +28,23 @@ const Dashboard = () => {
   });
   const [currentStage, setCurrentStage] = useState(null);
   const [stageInfo, setStageInfo] = useState('');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const envData = await fetchEnvironmentalData();
+        setError(null); // Clear any previous errors
+        console.log('Fetching environmental data...');
+        const envData = await fetchEnvironmentalData(selectedRoom, timeScale);
+        console.log('Received environmental data:', envData);
+
+        console.log('Processing environmental data...');
         const processedData = processEnvironmentalData(envData);
+        console.log('Processed data:', processedData);
 
         setChartData(processedData);
 
+        console.log('Detecting stages...');
         const stageData = detectStages(processedData, true);
         console.log('Detected stage data:', stageData);
 
@@ -44,20 +52,31 @@ const Dashboard = () => {
           setCurrentStage(stageData.currentStage);
           setStageInfo(stageData.stageDescription);
 
-          const recipeData = await fetchRecipeData();
-          const bounds = calculateRecipeBounds(recipeData, stageData.currentStage);
+          console.log('Fetching recipe data...');
+          const recipeData = await fetchRecipeData(selectedStrain);
+          console.log('Received recipe data:', recipeData);
 
+          console.log('Calculating recipe bounds...');
+          const bounds = calculateRecipeBounds(recipeData, stageData.currentStage);
           console.log('Calculated bounds:', bounds);
 
-          setRecipeBounds(bounds);
+          if (!bounds.day || !bounds.night) {
+            console.error('Error: Calculated bounds are missing!');
+            setError('Failed to calculate recipe bounds. Please check the recipe data.');
+          } else {
+            setRecipeBounds(bounds);
+          }
+        } else {
+          setError('Failed to detect current growth stage. Please check the environmental data.');
         }
       } catch (error) {
         console.error("Error loading data:", error);
+        setError(`Failed to load data: ${error.message}. Please try again later.`);
       }
     };
 
     loadData();
-  }, [timeScale, selectedRoom]);
+  }, [timeScale, selectedRoom, selectedStrain]);
 
   const renderCurrentTab = () => {
     switch (currentTab) {
@@ -66,19 +85,18 @@ const Dashboard = () => {
           <>
             <h2 className="text-2xl font-bold mb-4">Environmental Controls - Last {timeScale}</h2>
             <p className="text-lg mb-2">It's {chartData.some(data => data.lightOn) ? 'daytime' : 'nighttime'}, {stageInfo}</p>
-  
-            <h2 className="text-xl font-bold mb-4 mt-8">VPD</h2>
-            <MetricChart chartData={chartData} recipeBounds={recipeBounds} metric="vpd" />
-  
-            <h2 className="text-xl font-bold mb-4 mt-8">Temperature</h2>
-            <MetricChart chartData={chartData} recipeBounds={recipeBounds} metric="temperature" />
-  
-            <h2 className="text-xl font-bold mb-4 mt-8">Humidity</h2>
-            <MetricChart chartData={chartData} recipeBounds={recipeBounds} metric="humidity" />
-  
-            <h2 className="text-xl font-bold mb-4 mt-8">CO2</h2>
-            <MetricChart chartData={chartData} recipeBounds={recipeBounds} metric="co2" />
-  
+
+            {['vpd', 'temperature', 'humidity', 'co2'].map((metric) => (
+              <div key={metric}>
+                <h2 className="text-xl font-bold mb-4 mt-8">{metric.toUpperCase()}</h2>
+                <MetricChart 
+                  chartData={chartData} 
+                  recipeBounds={recipeBounds} 
+                  metric={metric} 
+                />
+              </div>
+            ))}
+
             <AIAnalysis 
               chartData={chartData} 
               recipeBounds={recipeBounds} 
@@ -87,7 +105,7 @@ const Dashboard = () => {
             />
           </>
         );
-      // Other cases here...
+      // Add cases for other tabs as needed
       default:
         return null;
     }
@@ -104,6 +122,7 @@ const Dashboard = () => {
         setTimeScale={setTimeScale}
       />
       <Tabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
+      {error && <div className="error-message bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">{error}</div>}
       {renderCurrentTab()}
     </div>
   );
